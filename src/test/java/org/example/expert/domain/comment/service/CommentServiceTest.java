@@ -1,6 +1,7 @@
 package org.example.expert.domain.comment.service;
 
 import org.example.expert.domain.comment.dto.request.CommentSaveRequest;
+import org.example.expert.domain.comment.dto.response.CommentResponse;
 import org.example.expert.domain.comment.dto.response.CommentSaveResponse;
 import org.example.expert.domain.comment.entity.Comment;
 import org.example.expert.domain.comment.repository.CommentRepository;
@@ -11,14 +12,18 @@ import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoRepository;
 import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.enums.UserRole;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -71,4 +76,31 @@ class CommentServiceTest {
         // then
         assertNotNull(result);
     }
+
+    @Test
+    @DisplayName("댓글 목록 조회 성공")
+    void getComments() {
+        // given
+        long todoId = 1L;
+
+        User user = new User("email", "encodedPwd", UserRole.USER);
+        Todo todo = new Todo("title", "title", "contents", user);
+        Comment comment = new Comment("comment content", user, todo);
+        ReflectionTestUtils.setField(comment, "id", 100L);
+
+        List<Comment> commentList = List.of(comment);
+
+        given(commentRepository.findByTodoIdWithUser(todoId)).willReturn(commentList);
+
+        // when
+        List<CommentResponse> result = commentService.getComments(todoId);
+
+        // then
+        CommentResponse response = result.get(0);
+        assertThat(response.getId()).isEqualTo(comment.getId());
+        assertThat(response.getContents()).isEqualTo(comment.getContents());
+        assertThat(response.getUser().getId()).isEqualTo(user.getId());
+        assertThat(response.getUser().getEmail()).isEqualTo(user.getEmail());
+    }
+
 }
