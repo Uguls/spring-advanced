@@ -41,4 +41,7 @@ Map<String, Object> 에서 ErrorResponse DTO로 변경
 중복 코드는 buildResponse()로 통일
 또한 변경후에는 필드 추가가 용이함
 
+
+# 테스트 커버리지
 ![image](https://github.com/user-attachments/assets/9169c3ca-4415-4975-b937-c284968fceca)
+
